@@ -14,7 +14,7 @@ def calculate_loss(predictions, ground_truth, cfg):
     if cfg.dtype == 'voxel':
         loss = losses.voxel_loss(predictions,ground_truth)
     elif cfg.dtype == 'point':
-        loss = cd_loss(predictions, ground_truth)
+        loss = cd_loss.forward(predictions, ground_truth)
     # elif cfg.dtype == 'mesh':
     #     sample_trg = sample_points_from_meshes(ground_truth, cfg.n_points)
     #     sample_pred = sample_points_from_meshes(predictions, cfg.n_points)
