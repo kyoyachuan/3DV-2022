@@ -4,12 +4,15 @@ from src.dataset import ShapeNetDB, collate_meshes_fn
 from src.model import SingleViewto3D
 import src.losses as losses
 from src.losses import ChamferDistanceLoss
+from src.visualize import plot
 from pytorch3d.ops import sample_points_from_meshes
 
 import hydra
 from omegaconf import DictConfig
 
+
 cd_loss = ChamferDistanceLoss()
+
 
 def calculate_loss(predictions, ground_truth, cfg):
     if cfg.dtype == 'voxel':
@@ -25,6 +28,7 @@ def calculate_loss(predictions, ground_truth, cfg):
 
         loss = cfg.w_chamfer * loss_reg + cfg.w_smooth * loss_smooth        
     return loss
+
 
 @hydra.main(config_path="configs/", config_name="config.yml")
 def train_model(cfg: DictConfig):
@@ -84,7 +88,7 @@ def train_model(cfg: DictConfig):
 
         optimizer.zero_grad()
         loss.backward()
-        optimizer.step()        
+        optimizer.step()      
 
         total_time = time.time() - start_time
         iter_time = time.time() - iter_start_time
@@ -97,6 +101,11 @@ def train_model(cfg: DictConfig):
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict()
                 }, f'{cfg.base_dir}/checkpoint_{cfg.dtype}.pth')
+        
+        if (step % cfg.vis_freq) == 0:
+            # visualization block
+            plot(images_gt[0], prediction_3d[0], ground_truth_3d[0], cfg)
+
 
         print("[%4d/%4d]; ttime: %.0f (%.2f, %.2f); loss: %.5f" % (step, cfg.max_iter, total_time, read_time, iter_time, loss_vis))
 

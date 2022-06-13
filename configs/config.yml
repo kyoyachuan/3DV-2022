@@ -28,6 +28,6 @@ save_freq: 100
 load_checkpoint: False
 
 # eval
-vis_freq: 1000
+vis_freq: 50
 load_eval_checkpoint: True
 

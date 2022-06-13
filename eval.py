@@ -1,10 +1,12 @@
 import time
 import torch
-from src.dataset import ShapeNetDB
+from src.dataset import ShapeNetDB, collate_meshes_fn
 from src.model import SingleViewto3D
 import src.losses as losses
 from src.losses import ChamferDistanceLoss
+from src.visualize import plot
 import numpy as np
+from pytorch3d.ops import sample_points_from_meshes
 
 import hydra
 from omegaconf import DictConfig
@@ -12,31 +14,42 @@ from omegaconf import DictConfig
 
 cd_loss = ChamferDistanceLoss()
 
+
 def calculate_loss(predictions, ground_truth, cfg):
     if cfg.dtype == 'voxel':
         loss = losses.voxel_loss(predictions,ground_truth)
     elif cfg.dtype == 'point':
-        loss = cd_loss.forward(predictions, ground_truth)
-    # elif cfg.dtype == 'mesh':
-    #     sample_trg = sample_points_from_meshes(ground_truth, cfg.n_points)
-    #     sample_pred = sample_points_from_meshes(predictions, cfg.n_points)
+        loss = cd_loss(predictions, ground_truth)
+    elif cfg.dtype == 'mesh':
+        sample_trg = sample_points_from_meshes(ground_truth, cfg.n_points)
+        sample_pred = sample_points_from_meshes(predictions, cfg.n_points)
 
-    #     loss_reg = losses.chamfer_loss(sample_pred, sample_trg)
-    #     loss_smooth = losses.smoothness_loss(predictions)
+        loss_reg = cd_loss(sample_pred, sample_trg)
+        loss_smooth = losses.smoothness_loss(predictions)
 
-        # loss = cfg.w_chamfer * loss_reg + cfg.w_smooth * loss_smooth        
+        loss = cfg.w_chamfer * loss_reg + cfg.w_smooth * loss_smooth        
     return loss
+
 
 @hydra.main(config_path="configs/", config_name="config.yml")
 def evaluate_model(cfg: DictConfig):
     shapenetdb = ShapeNetDB(cfg.data_dir, cfg.dtype)
 
-    loader = torch.utils.data.DataLoader(
-        shapenetdb,
-        batch_size=cfg.batch_size,
-        num_workers=cfg.num_workers,
-        pin_memory=True,
-        drop_last=True)
+    if cfg.dtype == 'mesh':
+      loader = torch.utils.data.DataLoader(
+          shapenetdb,
+          batch_size=cfg.batch_size,
+          collate_fn=collate_meshes_fn,
+          num_workers=cfg.num_workers,
+          pin_memory=True,
+          drop_last=True)
+    else:
+      loader = torch.utils.data.DataLoader(
+          shapenetdb,
+          batch_size=cfg.batch_size,
+          num_workers=cfg.num_workers,
+          pin_memory=True,
+          drop_last=True)
     eval_loader = iter(loader)
 
     model =  SingleViewto3D(cfg)
@@ -71,10 +84,9 @@ def evaluate_model(cfg: DictConfig):
         loss = calculate_loss(prediction_3d, ground_truth_3d, cfg).cpu().item()
 
         # TODO:
-        # if (step % cfg.vis_freq) == 0:
-        #     # visualization block
-        #     #  rend = 
-        #     plt.imsave(f'vis/{step}_{args.dtype}.png', rend)
+        if (step % cfg.vis_freq) == 0:
+            # visualization block
+            plot(images_gt[0], prediction_3d[0], ground_truth_3d[0], cfg)
 
         total_time = time.time() - start_time
         iter_time = time.time() - iter_start_time
