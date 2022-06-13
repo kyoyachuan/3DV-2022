@@ -1,9 +1,13 @@
 # input data
 base_dir: /content/drive/MyDrive/3dv-hw/3DV-2022
 data_dir: ${base_dir}/data/chair
-dtype: "voxel" # "point" "voxel"
+dtype: "mesh"
 n_points: 2048
 dim_voxels: 33
+
+# loss weight
+w_chamfer: 1.0
+w_smooth: 0.1
 
 # vision model
 arch: resnet18

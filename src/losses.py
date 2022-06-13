@@ -1,5 +1,7 @@
 import torch
 
+from pytorch3d.loss import mesh_laplacian_smoothing
+
 
 bce_loss = torch.nn.BCELoss()
 
@@ -10,16 +12,10 @@ def voxel_loss(voxel_src, voxel_tgt):
 	return prob_loss
 
 
-def chamfer_loss(point_cloud_src, point_cloud_tgt):
-	# loss_chamfer = 
-	# implement chamfer loss from scratch
-	return loss_chamfer
-
-
-# def smoothness_loss(mesh_src):
-# 	# loss = 
-# 	# implement laplacian smoothening loss
-# 	return loss_laplacian
+def smoothness_loss(mesh_src):
+	loss_laplacian = mesh_laplacian_smoothing(mesh_src, method="uniform")
+	# implement laplacian smoothening loss
+	return loss_laplacian
 
 
 class ChamferDistanceLoss(torch.nn.Module):
