@@ -12,7 +12,7 @@ cd_loss = ChamferDistanceLoss()
 
 def calculate_loss(predictions, ground_truth, cfg):
     if cfg.dtype == 'voxel':
-        loss = losses.voxel_loss(predictions,ground_truth)
+        loss = losses.voxel_loss(predictions, ground_truth)
     elif cfg.dtype == 'point':
         loss = cd_loss.forward(predictions, ground_truth)
     # elif cfg.dtype == 'mesh':

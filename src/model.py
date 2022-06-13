@@ -17,9 +17,9 @@ class SingleViewto3D(nn.Module):
 
         # define decoder
         if cfg.dtype == "voxel":
-            pass
+            self.dim_voxels = cfg.dim_voxels
             # TODO:
-            # self.decoder =             
+            self.decoder = VoxelDecoder(self.dim_voxels, 512)
         elif cfg.dtype == "point":
             self.n_point = cfg.n_points
             # TODO:
@@ -45,7 +45,7 @@ class SingleViewto3D(nn.Module):
         # call decoder
         if cfg.dtype == "voxel":
             # TODO:
-            # voxels_pred =             
+            voxels_pred = self.decoder(encoded_feat)          
             return voxels_pred
 
         elif cfg.dtype == "point":
@@ -81,4 +81,28 @@ class PointDecoder(nn.Module):
         x = F.relu(self.fc4(x))
         x = self.th(self.fc5(x))
         x = x.view(batchsize, self.num_points, 3)
+        return x
+
+
+class VoxelDecoder(nn.Module):
+    def __init__(self, dim_voxels, latent_size):
+        super(VoxelDecoder, self).__init__()
+        self.dim_voxels = dim_voxels
+        self.fc0 = nn.Linear(latent_size, 100)
+        self.fc1 = nn.Linear(100, 128)
+        self.fc2 = nn.Linear(128, 256)
+        self.fc3 = nn.Linear(256, 512)
+        self.fc4 = nn.Linear(512, 1024)
+        self.fc5 = nn.Linear(1024, self.dim_voxels ** 3)
+        self.sg = nn.Sigmoid()
+
+    def forward(self, x):
+        batchsize = x.size()[0]
+        x = F.relu(self.fc0(x))
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = F.relu(self.fc3(x))
+        x = F.relu(self.fc4(x))
+        x = self.sg(self.fc5(x))
+        x = x.view(batchsize, self.dim_voxels, self.dim_voxels, self.dim_voxels)
         return x
