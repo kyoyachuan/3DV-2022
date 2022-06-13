@@ -104,7 +104,7 @@ def train_model(cfg: DictConfig):
         
         if (step % cfg.vis_freq) == 0:
             # visualization block
-            plot(images_gt[0], prediction_3d[0], ground_truth_3d[0], cfg)
+            plot(images_gt[0], prediction_3d[0], ground_truth_3d[0], cfg, f"Step {str(step)}")
 
 
         print("[%4d/%4d]; ttime: %.0f (%.2f, %.2f); loss: %.5f" % (step, cfg.max_iter, total_time, read_time, iter_time, loss_vis))

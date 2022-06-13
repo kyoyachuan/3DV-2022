@@ -6,18 +6,20 @@ import matplotlib as mpl
 mpl.rcParams['figure.dpi'] = 80
 
 
-def plot(img, pred, gt, cfg):
+def plot(img, pred, gt, cfg, title=None):
     if cfg.dtype == 'point':
-        plot_pointcloud(img, pred, gt)
+        plot_pointcloud(img, pred, gt, title)
     elif cfg.dtype == 'voxel':
-        plot_voxel(img, pred, gt)
+        plot_voxel(img, pred, gt, title)
     elif cfg.dtype == 'mesh':
-        plot_mesh(img, pred, gt)
+        plot_mesh(img, pred, gt, title)
 
 
-def plot_mesh(img, pred, gt):
+def plot_mesh(img, pred, gt, title=None):
     # set up a figure twice as wide as it is tall
     fig = plt.figure(figsize=plt.figaspect(0.3))
+    if title:
+        fig.suptitle(title, fontsize=14)
 
     ax = fig.add_subplot(1, 3, 1)
     img = img.detach().cpu().numpy()
@@ -47,9 +49,11 @@ def plot_mesh(img, pred, gt):
     plt.show()
 
 
-def plot_pointcloud(img, pred, gt):
+def plot_pointcloud(img, pred, gt, title=None):
     # set up a figure twice as wide as it is tall
     fig = plt.figure(figsize=plt.figaspect(0.3))
+    if title:
+        fig.suptitle(title, fontsize=14)
 
     ax = fig.add_subplot(1, 3, 1)
     img = img.detach().cpu().numpy()
@@ -77,9 +81,11 @@ def plot_pointcloud(img, pred, gt):
     plt.show()
 
 
-def plot_voxel(img, pred, gt):
+def plot_voxel(img, pred, gt, title=None):
     # set up a figure twice as wide as it is tall
     fig = plt.figure(figsize=plt.figaspect(0.3))
+    if title:
+        fig.suptitle(title, fontsize=14)
 
     ax = fig.add_subplot(1, 3, 1)
     img = img.detach().cpu().numpy()
