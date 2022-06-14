@@ -30,12 +30,6 @@ class SingleViewto3D(nn.Module):
             self.decoder = PointDecoder(self.src_mesh_dims, 512)
 
     def forward(self, images, cfg):
-        results = dict()
-
-        total_loss = 0.0
-
-        B = images.shape[0]
-
         images_normalize = self.normalize(images.permute(0,3,1,2))
         encoded_feat = self.encoder(images_normalize).squeeze(-1).squeeze(-1)
 
@@ -49,9 +43,7 @@ class SingleViewto3D(nn.Module):
             return pointclouds_pred
 
         elif cfg.dtype == "mesh":
-            deform_vertices_pred = self.decoder(encoded_feat)
-            print(deform_vertices_pred.shape)
-            print(self.mesh_pred.verts_packed().shape)        
+            deform_vertices_pred = self.decoder(encoded_feat)      
             mesh_pred = self.mesh_pred.offset_verts(deform_vertices_pred.reshape([-1,3]))
             return mesh_pred          
 
