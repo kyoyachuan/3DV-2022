@@ -1,7 +1,7 @@
 # input data
 base_dir: /content/drive/MyDrive/3dv-hw/3DV-2022
 data_dir: ${base_dir}/data/chair
-dtype: "voxel"
+dtype: "mesh"
 n_points: 2048
 dim_voxels: 33
 

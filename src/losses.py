@@ -8,14 +8,14 @@ bce_loss = torch.nn.BCELoss()
 
 # define losses
 def voxel_loss(voxel_src, voxel_tgt):
-	prob_loss = bce_loss(voxel_src, voxel_tgt.float())
-	return prob_loss
+	  prob_loss = bce_loss(voxel_src, voxel_tgt.float())
+	  return prob_loss
 
 
 def smoothness_loss(mesh_src):
-	loss_laplacian = mesh_laplacian_smoothing(mesh_src, method="uniform")
-	# implement laplacian smoothening loss
-	return loss_laplacian
+	  loss_laplacian = mesh_laplacian_smoothing(mesh_src, method="uniform")
+	  # implement laplacian smoothening loss
+	  return loss_laplacian
 
 
 class ChamferDistanceLoss(torch.nn.Module):
