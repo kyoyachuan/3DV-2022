@@ -1,6 +1,6 @@
 import time
 import torch
-from src.dataset import ShapeNetDB, collate_meshes_fn
+from src.dataset import ShapeNetDB, collate_meshes
 from src.model import SingleViewto3D
 import src.losses as losses
 from src.losses import ChamferDistanceLoss
@@ -25,8 +25,10 @@ def calculate_loss(predictions, ground_truth, cfg):
 
         loss_reg = cd_loss(sample_pred, sample_trg)
         loss_smooth = losses.smoothness_loss(predictions)
+        loss_normal = losses.normal_loss(predictions)
+        loss_edge = losses.edge_loss(predictions)
 
-        loss = cfg.w_chamfer * loss_reg + cfg.w_smooth * loss_smooth        
+        loss = cfg.w_chamfer * loss_reg + cfg.w_smooth * loss_smooth  + cfg.w_normal * loss_normal + cfg.w_edge * loss_edge      
     return loss
 
 
@@ -39,7 +41,7 @@ def train_model(cfg: DictConfig):
       loader = torch.utils.data.DataLoader(
           shapenetdb,
           batch_size=cfg.batch_size,
-          collate_fn=collate_meshes_fn,
+          collate_fn=collate_meshes,
           num_workers=cfg.num_workers,
           pin_memory=True,
           drop_last=True)

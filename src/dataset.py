@@ -15,8 +15,9 @@ from pytorch3d.renderer import TexturesVertex
 from pytorch3d.structures.meshes import join_meshes_as_batch
 
 
-def collate_meshes_fn(data):
+def collate_meshes(data):
     """
+    Custom collate function to batch meshes
     """
     imgs, meshes, obj_ids = zip(*data)
     meshes = join_meshes_as_batch(meshes)
@@ -69,6 +70,12 @@ class ShapeNetDB(Dataset):
             return img, voxel, object_id
 
         elif self.data_type == 'mesh':
+            """
+            Return shapes:
+            img: (B, 256, 256, 3)
+            mesh: Mesh structure
+            object_id: (B,)
+            """
             img, img_id = self.load_img(idx)
             mesh, object_id = self.load_mesh(idx)
 
@@ -77,30 +84,17 @@ class ShapeNetDB(Dataset):
             return img, mesh, object_id
 
     def load_db(self):
-        # print(os.path.join(self.data_dir, '*'))
         db_list = sorted(glob.glob(os.path.join(self.data_dir, '*')))
-        # print(db_list)
 
         return db_list
     
     def get_index(self):
         self.id_index = self.data_dir.split('/').index("data") + 2
-        # print(self.id_index)
 
     def load_img(self, idx):
         path = os.path.join(self.db[idx], 'view.png')
         img = read_image(path) / 255.0
         img = img.permute(1,2,0)
-        # raw_img = Image.open(path)
-        # img = torch.from_numpy(np.array(raw_img) / 255.0)[..., :3]
-        # img = img.to(dtype=torch.float32)
-
-        # if self.img_transform:
-        #     trans = transforms.Compose([
-        #                                 transforms.Resize(512),
-        #                                 transforms.ToTensor()
-        #                                 ])
-        #     img = trans(img)
 
         object_id = self.db[idx].split('/')[self.id_index]
 
@@ -134,11 +128,6 @@ class ShapeNetDB(Dataset):
     def load_point(self, idx):
         path = os.path.join(self.db[idx], 'point_cloud.npy')
         points = np.load(path)
-
-        # resample
-        # n_points = 2048
-        # choice = np.random.choice(points.shape[0], n_points, replace=True)
-        # points = points[choice, :3]
 
         # normalize
         points = points - np.expand_dims(np.mean(points, axis = 0), 0) # center

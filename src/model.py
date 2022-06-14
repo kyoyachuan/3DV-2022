@@ -7,6 +7,7 @@ import torch.nn.functional as F
 from pytorch3d.utils import ico_sphere
 import pytorch3d
 
+
 class SingleViewto3D(nn.Module):
     def __init__(self, cfg):
         super(SingleViewto3D, self).__init__()
@@ -18,18 +19,14 @@ class SingleViewto3D(nn.Module):
         # define decoder
         if cfg.dtype == "voxel":
             self.dim_voxels = cfg.dim_voxels
-            # TODO:
             self.decoder = VoxelDecoder(self.dim_voxels, 512)
         elif cfg.dtype == "point":
             self.n_point = cfg.n_points
-            # TODO:
             self.decoder = PointDecoder(cfg.n_points, 512)
         elif cfg.dtype == "mesh":
-            # try different mesh initializations
             mesh_pred = ico_sphere(4, 'cuda')
             self.src_mesh_dims = mesh_pred.verts_packed().shape[0]
             self.mesh_pred = pytorch3d.structures.Meshes(mesh_pred.verts_list()*cfg.batch_size, mesh_pred.faces_list()*cfg.batch_size)
-            # TODO:
             self.decoder = PointDecoder(self.src_mesh_dims, 512)
 
     def forward(self, images, cfg):
@@ -45,17 +42,14 @@ class SingleViewto3D(nn.Module):
 
         # call decoder
         if cfg.dtype == "voxel":
-            # TODO:
             voxels_pred = self.decoder(encoded_feat)          
             return voxels_pred
 
         elif cfg.dtype == "point":
-            # TODO:
             pointclouds_pred = self.decoder(encoded_feat)
             return pointclouds_pred
 
         elif cfg.dtype == "mesh":
-            # TODO:
             deform_vertices_pred = self.decoder(encoded_feat)        
             mesh_pred = self.mesh_pred.offset_verts(deform_vertices_pred.reshape([-1,3]))
             return mesh_pred          

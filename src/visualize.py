@@ -25,11 +25,13 @@ def plot_pointcloud(img, pred, gt, title=None):
     if title:
         fig.suptitle(title, fontsize=14)
 
+    # image plot
     ax = fig.add_subplot(1, 3, 1)
     img = img.detach().cpu().numpy()
     ax.imshow(img)
     ax.set_title('Image')
 
+    # prediction plot
     ax = fig.add_subplot(1, 3, 2, projection='3d')
     x, y, z = pred.clone().detach().cpu().squeeze().unbind(1) 
     ax.scatter3D(x, z, -y, s=5)
@@ -39,6 +41,7 @@ def plot_pointcloud(img, pred, gt, title=None):
     ax.set_title('Pred')
     ax.view_init(190, 190)
 
+    # ground truth plot
     ax = fig.add_subplot(1, 3, 3, projection='3d')
     xg, yg, zg = gt.clone().detach().cpu().squeeze().unbind(1) 
     ax.scatter3D(xg, zg, -yg, s=5)
@@ -57,11 +60,13 @@ def plot_voxel(img, pred, gt, title=None):
     if title:
         fig.suptitle(title, fontsize=14)
 
+    # image plot
     ax = fig.add_subplot(1, 3, 1)
     img = img.detach().cpu().numpy()
     ax.imshow(img)
     ax.set_title('Image')
 
+    # prediction plot
     ax = fig.add_subplot(1, 3, 2, projection='3d')
     voxel = pred.clone().detach().cpu().permute(0,2,1)
     ax.voxels((voxel>0.5))
@@ -72,6 +77,7 @@ def plot_voxel(img, pred, gt, title=None):
     ax.set_title('Pred')
     ax.view_init(190, 190)
 
+    # ground truth plot
     ax = fig.add_subplot(1, 3, 3, projection='3d')
     voxel_gt = gt.clone().detach().cpu().permute(0,2,1)
     ax.voxels(voxel_gt)
