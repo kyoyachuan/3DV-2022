@@ -33,7 +33,6 @@ class SingleViewto3D(nn.Module):
         results = dict()
 
         total_loss = 0.0
-        start_time = time.time()
 
         B = images.shape[0]
 
@@ -50,7 +49,9 @@ class SingleViewto3D(nn.Module):
             return pointclouds_pred
 
         elif cfg.dtype == "mesh":
-            deform_vertices_pred = self.decoder(encoded_feat)        
+            deform_vertices_pred = self.decoder(encoded_feat)
+            print(deform_vertices_pred.shape)
+            print(self.mesh_pred.verts_packed().shape)        
             mesh_pred = self.mesh_pred.offset_verts(deform_vertices_pred.reshape([-1,3]))
             return mesh_pred          
 

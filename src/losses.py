@@ -1,9 +1,7 @@
 import torch
 
 from pytorch3d.loss import (
-    mesh_edge_loss, 
     mesh_laplacian_smoothing, 
-    mesh_normal_consistency,
 )
 
 
@@ -22,14 +20,6 @@ def voxel_loss(voxel_src, voxel_tgt):
 def smoothness_loss(mesh_src):
     loss_laplacian = mesh_laplacian_smoothing(mesh_src, method="uniform")
     return loss_laplacian
-
-
-def edge_loss(mesh_src):
-    return mesh_edge_loss(mesh_src)
-
-
-def normal_loss(mesh_src):
-    return mesh_normal_consistency(mesh_src)
 
 
 class ChamferDistanceLoss(torch.nn.Module):

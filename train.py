@@ -25,10 +25,8 @@ def calculate_loss(predictions, ground_truth, cfg):
 
         loss_reg = cd_loss(sample_pred, sample_trg)
         loss_smooth = losses.smoothness_loss(predictions)
-        loss_normal = losses.normal_loss(predictions)
-        loss_edge = losses.edge_loss(predictions)
 
-        loss = cfg.w_chamfer * loss_reg + cfg.w_smooth * loss_smooth  + cfg.w_normal * loss_normal + cfg.w_edge * loss_edge      
+        loss = cfg.w_chamfer * loss_reg + cfg.w_smooth * loss_smooth
     return loss
 
 
